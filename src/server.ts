@@ -31,14 +31,17 @@ const start = async () => {
     // Initialize database
     await initializeDatabase();
 
-    // Use config.port instead of hardcoded 3000
+    // Use config.port and listen on all interfaces for Railway
     const port = config.port;
-    await fastify.listen({ port, host: '0.0.0.0' });
+    const host = '0.0.0.0';
     
-    console.log(`✅ Server running on http://localhost:${port}`);
+    await fastify.listen({ port, host });
+    
+    console.log(`✅ Server running on http://${host}:${port}`);
     console.log(`🌍 Environment: ${config.nodeEnv}`);
   } catch (err) {
     fastify.log.error(err);
+    console.error('❌ Server failed to start:', err);
     process.exit(1);
   }
 };
