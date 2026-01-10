@@ -15,10 +15,12 @@ import { MockDexRouter } from './dex-router';
 // OR if it exports a function, use this instead:
 // import { getDexRouter } from './dex-router';
 
-// ✅ Use config instead of hardcoded values
+// ✅ Create Redis connection configuration (plain object for BullMQ)
 const connection = {
   host: config.redis.host,
-  port: config.redis.port
+  port: config.redis.port,
+  ...(config.redis.password && { password: config.redis.password }),
+  ...(config.redis.username && { username: config.redis.username }),
 };
 
 // ✅ Create queue with production-ready settings

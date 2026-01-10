@@ -1,12 +1,32 @@
+interface RedisConfig {
+  host: string;
+  port: number;
+  password?: string;
+  username?: string;
+}
+
 export const config = {
   // Server configuration
   port: parseInt(process.env.PORT || '3000', 10),
   
   // Redis configuration
-  redis: {
-    host: process.env.REDIS_HOST || 'localhost',
-    port: parseInt(process.env.REDIS_PORT || '6379', 10),
-  },
+  redis: (() => {
+    // Railway provides REDIS_URL in format: redis://user:pass@host:port
+    if (process.env.REDIS_URL) {
+      const url = new URL(process.env.REDIS_URL);
+      return {
+        host: url.hostname,
+        port: parseInt(url.port, 10),
+        password: url.password || undefined,
+        username: url.username || undefined,
+      } as RedisConfig;
+    }
+    // Fallback for local development
+    return {
+      host: process.env.REDIS_HOST || 'localhost',
+      port: parseInt(process.env.REDIS_PORT || '6379', 10),
+    } as RedisConfig;
+  })(),
   
   // Environment
   nodeEnv: process.env.NODE_ENV || 'development',
