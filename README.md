@@ -134,6 +134,32 @@ Each component has a **single responsibility**, making the system easy to scale,
 
 ---
 
+## 🎨 Design Decisions
+
+This project was built with **real-world production systems** in mind — not just to "make it work." Every architectural choice was intentional and grounded in how modern trading platforms are designed.
+
+* **Why Fastify over Express?**
+  Fastify offers significantly higher throughput and lower latency compared to Express, with first-class TypeScript support and built-in schema validation. When processing large volumes of orders, performance and safety matter.
+
+* **Why BullMQ instead of simple in-memory queues?**
+  BullMQ provides production-grade capabilities out of the box: retries, backoff strategies, job prioritization, persistence, and observability — all backed by Redis. These are essential features for any serious trading or financial system.
+
+* **Why separate the Worker from the API?**
+  Decoupling request handling from execution allows independent horizontal scaling. API servers can scale for traffic, while workers scale for throughput. This pattern is standard in high-frequency and event-driven systems.
+
+* **Why PostgreSQL for history and Redis for active orders?**
+  Active orders require ultra-low latency access — Redis excels here. Historical order data benefits from relational queries, indexing, and ACID guarantees — PostgreSQL is the right tool for the job. This hybrid storage model is common in fintech systems.
+
+* **Why WebSockets over polling?**
+  Trading systems demand near real-time feedback. WebSockets provide persistent, low-latency communication without the overhead of repeated HTTP polling, enabling a smoother and more responsive trading experience.
+
+* **Why Market Orders first?**
+  Market orders form the foundation of any exchange or trading engine. By implementing them first, the core execution pipeline is validated before introducing additional complexity such as limit or sniper orders.
+
+These decisions reflect patterns used in real-world platforms like Binance and Coinbase. The goal was to demonstrate not only **how** to build a trading engine, but **why** it should be built this way.
+
+---
+
 ## 📋 Tech Stack
 
 * **Runtime:** Node.js 20+ with TypeScript
