@@ -200,6 +200,36 @@ order-execution-engine/
  Implement JWT authentication
 
  Deploy to production (Railway/AWS)
+## 🌐 Live Deployment
+
+**Production URL:** https://order-execution-engine-production-c76b.up.railway.app
+
+### Test the Live API:
+
+```bash
+# Health Check
+curl https://order-execution-engine-production-c76b.up.railway.app/health
+
+# Create an Order
+curl -X POST https://order-execution-engine-production-c76b.up.railway.app/api/orders/execute \
+  -H "Content-Type: application/json" \
+  -d '{
+    "tokenIn": "SOL",
+    "tokenOut": "USDC",
+    "amount": 10,
+    "slippage": 0.01
+  }'
+
+# Get Order Status (replace ORDER_ID)
+curl https://order-execution-engine-production-c76b.up.railway.app/api/orders/ORDER_ID
+
+# List All Orders
+curl https://order-execution-engine-production-c76b.up.railway.app/api/orders
+
+WebSocket Connection:
+const ws = new WebSocket('wss://order-execution-engine-production-c76b.up.railway.app/ws/ORDER_ID');
+ws.onmessage = (event) => console.log(JSON.parse(event.data));
+
 
  Add Prometheus metrics
 
