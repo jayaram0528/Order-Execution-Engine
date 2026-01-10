@@ -1,88 +1,190 @@
 # 🚀 Order Execution Engine
 
-A high-performance decentralized exchange (DEX) order routing system with real-time WebSocket updates and intelligent price comparison.
+A **high‑performance decentralized exchange (DEX) order execution and routing engine** designed to demonstrate how real‑world trading systems work under the hood — fast, reliable, and observable in real time.
+
+This project emphasizes **clean architecture**, **production‑ready backend patterns**, and **excellent developer experience**, while keeping the system easy to read, reason about, and extend.
 
 ![Tests](https://img.shields.io/badge/tests-96%20passed-success)
 ![Coverage](https://img.shields.io/badge/coverage-91.79%25-brightgreen)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)
 
-## ✨ Features
+---
 
-- **Smart DEX Routing** - Automatically compares Raydium and Meteora to get the best execution price
-- **Real-time Updates** - WebSocket streaming for live order status notifications
-- **Queue Management** - Concurrent order processing using BullMQ + Redis
-- **Robust Error Handling** - Automatic retries with exponential backoff (2s → 4s → 8s)
-- **Type-Safe** - Built with TypeScript for reliability
-- **91.79% Test Coverage** - Production-ready quality with 96 passing tests
+## ✨ What This Project Does (At a Glance)
 
-## 💡 Order Type Selection: Market Order
+* Accepts trade requests (e.g., **SOL → USDC**)
+* Compares prices across multiple DEXs (Raydium & Meteora)
+* Automatically selects the **best execution price**
+* Executes orders asynchronously using a queue‑based worker model
+* Streams **real‑time order status updates** to clients via WebSockets
 
-### Why Market Order?
+All of this is implemented as a **type‑safe, well‑tested, and scalable backend system** suitable for real production environments.
 
-I chose **Market Order** for this implementation because:
+---
 
-1. **Core Functionality First** - Market orders execute immediately at current price, making them ideal for demonstrating the complete order routing pipeline, DEX price comparison, and real-time WebSocket updates without additional complexity.
+## ✨ Key Features
 
-2. **Production Reliability** - Immediate execution provides deterministic behavior, simpler testing, and fewer edge cases compared to conditional order types that require continuous price monitoring or event subscriptions.
+### 🔀 Smart DEX Routing
 
-### Extending to Other Order Types
+Automatically compares prices from **Raydium** and **Meteora** and routes each order to the DEX offering the best execution price.
 
-The architecture is designed for easy extension:
+### 📡 Real‑Time Order Updates
 
-- **Limit Orders** - Add a price monitoring worker that polls DEX prices every N seconds (configurable interval). When target price is reached, trigger the existing `processOrder()` function. The queue system, DEX router, and WebSocket infrastructure remain unchanged.
+Clients receive **live order status updates** (pending → executing → completed) using WebSockets, enabling reactive UIs and monitoring tools.
 
-- **Sniper Orders** - Subscribe to Raydium/Meteora pool creation events via WebSocket listeners. On token launch detection, immediately queue the order with high priority flag. Use the same execution pipeline with adjusted slippage tolerance for new token volatility.
+### 🧵 Queue‑Based Order Processing
 
-**All order types share:** DEX router, queue system, WebSocket updates, retry logic, and database layer. Only the trigger mechanism differs.
+Uses **BullMQ + Redis** to safely process concurrent orders, handle retries, and decouple API requests from execution logic.
 
+### 🔁 Reliable Error Handling
 
-## 🏗️ Architecture
+Built‑in **automatic retries with exponential backoff**:
 
-Client Request → Fastify API → BullMQ Queue → Worker
-↓ ↓ ↓
-Validation Redis Store DEX Router
-↓ ↓
-Database ← Order Complete ← Best Price
-↓
-WebSocket → Real-time Updates → Client
+* 2 seconds → 4 seconds → 8 seconds
 
+This ensures resilience against temporary failures and external service instability.
+
+### 🧠 Type‑Safe by Design
+
+Written entirely in **TypeScript**, reducing runtime errors and improving long‑term maintainability.
+
+### 🧪 Production‑Grade Testing
+
+* **96 tests passing**
+* **91.79% overall coverage**
+
+This is not a toy project — it follows real production quality standards.
+
+---
+
+## 💡 Order Type Choice: Market Orders
+
+### Why Market Orders?
+
+For this implementation, I intentionally started with **Market Orders**.
+
+**Rationale:**
+
+1. **Focus on Core Architecture**
+   Market orders execute immediately, making them ideal for demonstrating the complete execution pipeline — routing, queuing, execution, persistence, and WebSocket updates — without additional complexity.
+
+2. **Predictable & Testable Behavior**
+   Immediate execution results in deterministic outcomes, simpler test cases, and fewer edge conditions compared to conditional orders.
+
+3. **Production‑Realistic**
+   Market orders are the most common order type and form the foundation of most trading systems.
+
+---
+
+## 🔌 Extending to Other Order Types
+
+The system is **designed for extensibility**. Only the *trigger mechanism* changes — the core execution pipeline remains untouched.
+
+### 📈 Limit Orders
+
+* Add a background worker that periodically polls DEX prices (every N seconds)
+* When the target price is reached, trigger the existing `processOrder()` flow
+
+No changes are required to:
+
+* Queue system
+* DEX router
+* WebSocket updates
+* Retry logic
+
+### 🎯 Sniper Orders (Token Launch Trades)
+
+* Subscribe to Raydium/Meteora pool‑creation events via WebSockets
+* On token launch detection:
+
+  * Immediately enqueue the order with **high priority**
+  * Apply higher slippage tolerance to account for launch volatility
+
+### ✅ Shared Across All Order Types
+
+* DEX routing logic
+* BullMQ queue
+* WebSocket infrastructure
+* Retry & error handling
+* Database layer
+
+---
+
+## 🏗️ High‑Level Architecture
+
+```
+Client Request
+      ↓
+Fastify API
+      ↓
+BullMQ Queue (Redis)
+      ↓
+Worker Process
+      ↓
+DEX Router (Raydium vs Meteora)
+      ↓
+Order Execution
+      ↓
+Database Update
+      ↓
+WebSocket → Live Client Updates
+```
+
+Each component has a **single responsibility**, making the system easy to scale, test, and reason about.
+
+---
 
 ## 📋 Tech Stack
 
-- **Runtime:** Node.js 20+ with TypeScript
-- **Web Framework:** Fastify (high performance)
-- **Queue:** BullMQ + Redis (job processing)
-- **WebSocket:** @fastify/websocket (real-time)
-- **Testing:** Vitest + V8 coverage
-- **Database:** In-memory (can be replaced with PostgreSQL/MongoDB)
+* **Runtime:** Node.js 20+ with TypeScript
+* **API Framework:** Fastify (high‑performance HTTP server)
+* **Queue System:** BullMQ + Redis
+* **Database:** PostgreSQL (production) / In‑memory (development)
+* **WebSockets:** @fastify/websocket
+* **Testing:** Vitest + V8 Coverage
+* **Deployment:** Railway (PostgreSQL + Redis + App)
 
-## 🚀 Quick Start
+---
+
+## 🚀 Getting Started
 
 ### Prerequisites
 
-- Node.js 20+
-- Redis (for queue system)
+* Node.js 20+
+* Redis (required for queue processing)
+* PostgreSQL (optional — required only for production mode)
 
 ### Installation
 
 ```bash
-# Clone repository
+# Clone the repository
 git clone https://github.com/jayaram0528/Order-Execution-Engine.git
 cd Order-Execution-Engine
 
 # Install dependencies
 npm install
+```
 
-# Start Redis (choose one):
-# Option 1: Docker
+### Start Redis
+
+Choose one option:
+
+```bash
+# Docker
 docker run -d -p 6379:6379 redis:alpine
+```
 
-# Option 2: Windows (download from https://redis.io/download)
-# Option 3: WSL
+```bash
+# WSL
 sudo service redis-server start
+```
 
-Run the Application:
-# Development mode (with hot reload)
+(Windows users can download Redis directly from the official site.)
+
+### Run the Application
+
+```bash
+# Development mode (hot reload)
 npm run dev
 
 # Run tests
@@ -96,33 +198,48 @@ npm run build
 
 # Start production server
 npm start
+```
 
-Server starts at: http://localhost:3000
+Server runs at:
 
-📡 API Documentation
-Create Order
-POST /api/orders/execute
-Content-Type: application/json
+```
+http://localhost:3000
+```
 
+---
+
+## 📡 API Reference
+
+### ▶️ Create an Order
+
+**POST** `/api/orders/execute`
+
+```json
 {
   "tokenIn": "SOL",
   "tokenOut": "USDC",
   "amount": 10,
   "slippage": 0.01
 }
+```
 
+**Response (202 – Accepted):**
 
-Response (202 Accepted):
+```json
 {
   "orderId": "order_1768048336478_y769la",
   "status": "pending",
   "message": "Order created and queued successfully"
 }
+```
 
-Get Order Status:
-GET /api/orders/:orderId
+---
 
-Response (200 OK):
+### ▶️ Get Order Status
+
+**GET** `/api/orders/:orderId`
+
+```json
 {
   "id": "order_123",
   "tokenIn": "SOL",
@@ -132,79 +249,129 @@ Response (200 OK):
   "selectedDex": "RAYDIUM",
   "executedPrice": 2024.50
 }
+```
 
-List All Orders:
-GET /api/orders
+---
 
+### ▶️ List All Orders
 
-🔌 WebSocket Streaming
+**GET** `/api/orders`
+
+---
+
+## 🔌 WebSocket Streaming
+
+Subscribe to real‑time updates for a specific order:
+
+```js
 const ws = new WebSocket('ws://localhost:3000/ws/order_123');
 
 ws.onmessage = (event) => {
   const update = JSON.parse(event.data);
   console.log(update);
 };
+```
 
-🧪 Test Coverage
+---
 
-File           | % Stmts | % Branch | % Funcs | % Lines
----------------|---------|----------|---------|--------
-All files      |   91.79 |    76.92 |   95.45 |   91.66
-database.ts    |     100 |      100 |     100 |     100 ✅
-dex-router.ts  |     100 |      100 |     100 |     100 ✅
-routes.ts      |    92.3 |    80.76 |     100 |    92.3 ✅
-websocket.ts   |     100 |     87.5 |     100 |     100 ✅
-worker.ts      |   83.07 |    61.11 |   81.81 |   82.81 ✅
+## 📬 Postman Collection
 
-Test suites: 14 passed | Tests: 96 passed
+A ready‑to‑use **Postman collection** is included in this repository for easy API testing and validation.
 
+### What’s Included
 
-🎯 How It Works
-Client submits order via POST /api/orders/execute
+The `postman_collection.json` file contains pre‑configured requests:
 
-API validates input and adds order to BullMQ queue
+* Health Check — verify the API is running
+* Create Market Order — submit a new order
+* Get Order by ID — retrieve order details
+* List All Orders — fetch order history
+* Invalid Order Test — validate error handling
 
-Worker picks up job from queue
+### How to Use
 
-DEX Router compares Raydium vs Meteora prices
+#### Option 1: Postman UI
 
-Worker executes order with best price
+1. Open Postman (Desktop or Web)
+2. Click **Import**
+3. Select `postman_collection.json`
+4. Set environment variable `baseUrl`:
 
-Updates broadcast via WebSocket
+   * Local: `http://localhost:3000`
+   * Production: `https://order-execution-engine-production-c76b.up.railway.app`
+5. Send requests and observe responses
 
-Order saved to database as "completed"
+#### Option 2: Newman (CLI)
 
+```bash
+# Install Newman
+npm install -g newman
 
-📁 Project Structure
+# Run against local API
+newman run postman_collection.json --env-var "baseUrl=http://localhost:3000"
 
+# Run against production
+newman run postman_collection.json --env-var "baseUrl=https://order-execution-engine-production-c76b.up.railway.app"
+```
+
+---
+
+## 🧪 Test Coverage Summary
+
+| File          | % Stmts | % Branch | % Funcs | % Lines |
+| ------------- | ------- | -------- | ------- | ------- |
+| All files     | 91.79   | 76.92    | 95.45   | 91.66   |
+| database.ts   | 100     | 100      | 100     | 100 ✅   |
+| dex-router.ts | 100     | 100      | 100     | 100 ✅   |
+| routes.ts     | 92.3    | 80.76    | 100     | 92.3 ✅  |
+| websocket.ts  | 100     | 87.5     | 100     | 100 ✅   |
+| worker.ts     | 83.07   | 61.11    | 81.81   | 82.81 ✅ |
+
+**14 test suites | 96 tests passed**
+
+---
+
+## 🎯 End‑to‑End Flow
+
+1. Client submits an order
+2. API validates and queues the request
+3. Worker processes the job
+4. DEX router compares prices
+5. Best execution path is selected
+6. Order is executed
+7. Live updates stream via WebSocket
+8. Order is persisted as `completed`
+
+---
+
+## 📁 Project Structure
+
+```
 order-execution-engine/
 ├── src/
-│   ├── index.ts          # Server entry point
-│   ├── types.ts          # TypeScript types
-│   ├── database.ts       # In-memory database
-│   ├── dex-router.ts     # DEX price comparison
-│   ├── routes.ts         # API endpoints
+│   ├── server.ts         # Server entry point
+│   ├── types.ts          # Shared TypeScript types
+│   ├── config.ts         # Environment configuration
+│   ├── database.ts       # PostgreSQL database layer
+│   ├── dex-router.ts     # DEX price comparison logic
+│   ├── routes.ts         # REST API endpoints
 │   ├── websocket.ts      # WebSocket server
 │   └── worker.ts         # Background job processor
-├── src/__tests__/        # 14 test suites
+├── src/tests/            # 14 test suites (96 tests)
+├── postman_collection.json
 ├── package.json
 ├── tsconfig.json
 └── vitest.config.ts
+```
 
+---
 
-🔮 Future Enhancements
- Connect to real Solana DEXs (Raydium/Meteora APIs)
-
- Add PostgreSQL for persistent storage
-
- Implement JWT authentication
-
- Deploy to production (Railway/AWS)
 ## 🌐 Live Deployment
 
-**Production URL:** https://order-execution-engine-production-c76b.up.railway.app
+**Production URL:**
+[https://order-execution-engine-production-c76b.up.railway.app](https://order-execution-engine-production-c76b.up.railway.app)
 
-### Test the Live API:
+### Try It Live
 
 ```bash
 # Health Check
@@ -219,25 +386,50 @@ curl -X POST https://order-execution-engine-production-c76b.up.railway.app/api/o
     "amount": 10,
     "slippage": 0.01
   }'
+```
 
-# Get Order Status (replace ORDER_ID)
-curl https://order-execution-engine-production-c76b.up.railway.app/api/orders/ORDER_ID
+WebSocket:
 
-# List All Orders
-curl https://order-execution-engine-production-c76b.up.railway.app/api/orders
+```js
+const ws = new WebSocket(
+  'wss://order-execution-engine-production-c76b.up.railway.app/ws/ORDER_ID'
+);
 
-WebSocket Connection:
-const ws = new WebSocket('wss://order-execution-engine-production-c76b.up.railway.app/ws/ORDER_ID');
 ws.onmessage = (event) => console.log(JSON.parse(event.data));
+```
 
+---
 
- Add Prometheus metrics
+## 🏗️ Infrastructure
 
- 📄 License
-MIT License - feel free to use this for learning or portfolio purposes.
+The application is deployed on **Railway** with:
 
+* ✅ PostgreSQL for persistent order history
+* ✅ Redis for queue management
+* ✅ Auto‑deploy on pushes to the `main` branch
 
-👨‍💻 Author
-Jayaram
+---
 
-GitHub: @jayaram0528
+## 🔮 Future Improvements
+
+* Connect to real Solana DEX APIs (Raydium / Meteora SDKs)
+* Add JWT‑based authentication
+* Implement rate limiting and request throttling
+* Add Prometheus metrics & observability dashboards
+* Horizontal scaling with multiple workers
+* WebSocket clustering for multi‑server deployments
+
+---
+
+## 📄 License
+
+MIT License — free to use for learning, experimentation, and portfolio projects.
+
+---
+
+## 👨‍💻 Author
+
+**Jayaram**
+GitHub: **@jayaram0528**
+
+> If you’re reviewing this as a recruiter or engineer: this project is meant to demonstrate **system design, backend engineering, and real‑world reliability patterns** — not just code that “works.”
