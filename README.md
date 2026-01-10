@@ -15,6 +15,27 @@ A high-performance decentralized exchange (DEX) order routing system with real-t
 - **Type-Safe** - Built with TypeScript for reliability
 - **91.79% Test Coverage** - Production-ready quality with 96 passing tests
 
+## 💡 Order Type Selection: Market Order
+
+### Why Market Order?
+
+I chose **Market Order** for this implementation because:
+
+1. **Core Functionality First** - Market orders execute immediately at current price, making them ideal for demonstrating the complete order routing pipeline, DEX price comparison, and real-time WebSocket updates without additional complexity.
+
+2. **Production Reliability** - Immediate execution provides deterministic behavior, simpler testing, and fewer edge cases compared to conditional order types that require continuous price monitoring or event subscriptions.
+
+### Extending to Other Order Types
+
+The architecture is designed for easy extension:
+
+- **Limit Orders** - Add a price monitoring worker that polls DEX prices every N seconds (configurable interval). When target price is reached, trigger the existing `processOrder()` function. The queue system, DEX router, and WebSocket infrastructure remain unchanged.
+
+- **Sniper Orders** - Subscribe to Raydium/Meteora pool creation events via WebSocket listeners. On token launch detection, immediately queue the order with high priority flag. Use the same execution pipeline with adjusted slippage tolerance for new token volatility.
+
+**All order types share:** DEX router, queue system, WebSocket updates, retry logic, and database layer. Only the trigger mechanism differs.
+
+
 ## 🏗️ Architecture
 
 Client Request → Fastify API → BullMQ Queue → Worker
