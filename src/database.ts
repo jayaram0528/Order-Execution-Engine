@@ -1,11 +1,9 @@
 import { Pool } from 'pg';
 
+// Use Railway's DATABASE_URL or fallback to local for development
 const pool = new Pool({
-  host: 'localhost',
-  port: 5432,
-  database: 'order_engine',
-  user: 'postgres',
-  password: 'postgres'
+  connectionString: process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/order_engine',
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
 });
 
 export async function initializeDatabase() {
@@ -23,12 +21,16 @@ export async function initializeDatabase() {
         selected_dex VARCHAR(50),
         tx_hash VARCHAR(255),
         executed_price NUMERIC,
+        error TEXT,
         created_at TIMESTAMP DEFAULT NOW(),
         updated_at TIMESTAMP DEFAULT NOW()
       );
     `);
 
     console.log('✅ Database initialized');
+  } catch (error) {
+    console.error('❌ Database initialization failed:', error);
+    throw error;
   } finally {
     client.release();
   }
@@ -40,10 +42,10 @@ export const db = {
       const result = await pool.query(
         `INSERT INTO orders 
         (id, token_in, token_out, amount, slippage, status, created_at, updated_at)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
         RETURNING *`,
         [order.id, order.tokenIn, order.tokenOut, order.amount, 
-         order.slippage, order.status, order.createdAt, order.updatedAt]
+         order.slippage, order.status]
       );
       return result.rows[0];
     },
@@ -55,10 +57,11 @@ export const db = {
          selected_dex = COALESCE($2, selected_dex),
          tx_hash = COALESCE($3, tx_hash),
          executed_price = COALESCE($4, executed_price),
+         error = COALESCE($5, error),
          updated_at = NOW()
-         WHERE id = $5 RETURNING *`,
+         WHERE id = $6 RETURNING *`,
         [updates.status, updates.selectedDex, updates.txHash, 
-         updates.executedPrice, orderId]
+         updates.executedPrice, updates.error, orderId]
       );
       return result.rows[0];
     },
