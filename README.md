@@ -1,4 +1,4 @@
-# 🚀 Order Execution Engine
+#  Order Execution Engine
 
 A **high‑performance decentralized exchange (DEX) order execution and routing engine** designed to demonstrate how real‑world trading systems work under the hood — fast, reliable, and observable in real time.
 
@@ -10,7 +10,7 @@ This project emphasizes **clean architecture**, **production‑ready backend pat
 
 ---
 
-## ✨ What This Project Does (At a Glance)
+##  What This Project Does (At a Glance)
 
 * Accepts trade requests (e.g., **SOL → USDC**)
 * Compares prices across multiple DEXs (Raydium & Meteora)
@@ -22,21 +22,21 @@ All of this is implemented as a **type‑safe, well‑tested, and scalable backe
 
 ---
 
-## ✨ Key Features
+##  Key Features
 
-### 🔀 Smart DEX Routing
+### Smart DEX Routing
 
 Automatically compares prices from **Raydium** and **Meteora** and routes each order to the DEX offering the best execution price.
 
-### 📡 Real‑Time Order Updates
+### Real‑Time Order Updates
 
 Clients receive **live order status updates** (pending → executing → completed) using WebSockets, enabling reactive UIs and monitoring tools.
 
-### 🧵 Queue‑Based Order Processing
+### Queue‑Based Order Processing
 
 Uses **BullMQ + Redis** to safely process concurrent orders, handle retries, and decouple API requests from execution logic.
 
-### 🔁 Reliable Error Handling
+### Reliable Error Handling
 
 Built‑in **automatic retries with exponential backoff**:
 
@@ -44,11 +44,11 @@ Built‑in **automatic retries with exponential backoff**:
 
 This ensures resilience against temporary failures and external service instability.
 
-### 🧠 Type‑Safe by Design
+### Type‑Safe by Design
 
 Written entirely in **TypeScript**, reducing runtime errors and improving long‑term maintainability.
 
-### 🧪 Production‑Grade Testing
+### Production‑Grade Testing
 
 * **96 tests passing**
 * **91.79% overall coverage**
@@ -57,7 +57,7 @@ This is not a toy project — it follows real production quality standards.
 
 ---
 
-## 💡 Order Type Choice: Market Orders
+## Order Type Choice: Market Orders
 
 ### Why Market Orders?
 
@@ -76,11 +76,11 @@ For this implementation, I intentionally started with **Market Orders**.
 
 ---
 
-## 🔌 Extending to Other Order Types
+## Extending to Other Order Types
 
 The system is **designed for extensibility**. Only the *trigger mechanism* changes — the core execution pipeline remains untouched.
 
-### 📈 Limit Orders
+### Limit Orders
 
 * Add a background worker that periodically polls DEX prices (every N seconds)
 * When the target price is reached, trigger the existing `processOrder()` flow
@@ -92,7 +92,7 @@ No changes are required to:
 * WebSocket updates
 * Retry logic
 
-### 🎯 Sniper Orders (Token Launch Trades)
+### Sniper Orders (Token Launch Trades)
 
 * Subscribe to Raydium/Meteora pool‑creation events via WebSockets
 * On token launch detection:
@@ -100,7 +100,7 @@ No changes are required to:
   * Immediately enqueue the order with **high priority**
   * Apply higher slippage tolerance to account for launch volatility
 
-### ✅ Shared Across All Order Types
+### Shared Across All Order Types
 
 * DEX routing logic
 * BullMQ queue
@@ -110,7 +110,7 @@ No changes are required to:
 
 ---
 
-## 🏗️ High‑Level Architecture
+## High‑Level Architecture
 
 ```
 Client Request
@@ -134,7 +134,7 @@ Each component has a **single responsibility**, making the system easy to scale,
 
 ---
 
-## 🎨 Design Decisions
+## Design Decisions
 
 This project was built with **real-world production systems** in mind — not just to "make it work." Every architectural choice was intentional and grounded in how modern trading platforms are designed.
 
@@ -160,7 +160,7 @@ These decisions reflect patterns used in real-world platforms like Binance and C
 
 ---
 
-## 📋 Tech Stack
+## Tech Stack
 
 * **Runtime:** Node.js 20+ with TypeScript
 * **API Framework:** Fastify (high‑performance HTTP server)
@@ -172,7 +172,7 @@ These decisions reflect patterns used in real-world platforms like Binance and C
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -234,9 +234,9 @@ http://localhost:3000
 
 ---
 
-## 📡 API Reference
+## API Reference
 
-### ▶️ Create an Order
+###  Create an Order
 
 **POST** `/api/orders/execute`
 
@@ -261,7 +261,7 @@ http://localhost:3000
 
 ---
 
-### ▶️ Get Order Status
+###  Get Order Status
 
 **GET** `/api/orders/:orderId`
 
@@ -279,13 +279,13 @@ http://localhost:3000
 
 ---
 
-### ▶️ List All Orders
+###  List All Orders
 
 **GET** `/api/orders`
 
 ---
 
-## 🔌 WebSocket Streaming
+## WebSocket Streaming
 
 Subscribe to real‑time updates for a specific order:
 
@@ -300,7 +300,7 @@ ws.onmessage = (event) => {
 
 ---
 
-## 📬 Postman Collection
+## Postman Collection
 
 A ready‑to‑use **Postman collection** is included in this repository for easy API testing and validation.
 
@@ -342,7 +342,7 @@ newman run postman_collection.json --env-var "baseUrl=https://order-execution-en
 
 ---
 
-## 🧪 Test Coverage Summary
+## Test Coverage Summary
 
 | File          | % Stmts | % Branch | % Funcs | % Lines |
 | ------------- | ------- | -------- | ------- | ------- |
@@ -357,7 +357,7 @@ newman run postman_collection.json --env-var "baseUrl=https://order-execution-en
 
 ---
 
-## 🎯 End‑to‑End Flow
+## End‑to‑End Flow
 
 1. Client submits an order
 2. API validates and queues the request
@@ -370,7 +370,7 @@ newman run postman_collection.json --env-var "baseUrl=https://order-execution-en
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 order-execution-engine/
@@ -392,7 +392,7 @@ order-execution-engine/
 
 ---
 
-## 🌐 Live Deployment
+## Live Deployment
 
 **Production URL:**
 [https://order-execution-engine-production-c76b.up.railway.app](https://order-execution-engine-production-c76b.up.railway.app)
@@ -426,7 +426,7 @@ ws.onmessage = (event) => console.log(JSON.parse(event.data));
 
 ---
 
-## 🏗️ Infrastructure
+## Infrastructure
 
 The application is deployed on **Railway** with:
 
@@ -436,7 +436,7 @@ The application is deployed on **Railway** with:
 
 ---
 
-## 🔮 Future Improvements
+## Future Improvements
 
 * Connect to real Solana DEX APIs (Raydium / Meteora SDKs)
 * Add JWT‑based authentication
@@ -447,13 +447,13 @@ The application is deployed on **Railway** with:
 
 ---
 
-## 📄 License
+## License
 
 MIT License — free to use for learning, experimentation, and portfolio projects.
 
 ---
 
-## 👨‍💻 Author
+## Author
 
 **Jayaram**
 GitHub: **@jayaram0528**
